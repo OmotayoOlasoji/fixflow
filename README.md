@@ -15,14 +15,15 @@ Tenants usually report maintenance problems by phone or message. Requests get lo
 
 ![FixFlow architecture](doc/FixFlow-architecture-diagram.png)
 
-Browser (Vercel) → n8n webhook → Airtable and Mistral AI → response back to the website.
+Browser (Vercel) → n8n webhook → Airtable and Groq AI → response back to the website.
 
 **Workflow A: Report an issue** (`/webhook/fixflow-request`)
 1. The website sends the form to the n8n webhook.
 2. n8n builds a ticket ID and creates the ticket in Airtable.
-3. Mistral AI returns a category, a suggested priority, a recommended team and a short summary.
+3. Groq AI (gpt-oss-120b) returns a category, a suggested priority, a recommended team and a short summary.
 4. A code node applies the business rule. The AI suggests, the rules decide.
 5. n8n updates the ticket, writes a row in Activity Logs and returns the result to the website.
+6. n8n also emails the tenant a confirmation with the ticket ID, category and priority.
 
 **Workflow B: Track a ticket** (`/webhook/fixflow-track`)
 1. The website sends the ticket ID.
@@ -70,7 +71,7 @@ Open http://localhost:5173. The two webhook URLs are in the `CONFIG` block near 
 
 **n8n**
 1. Import both files from the `n8n` folder (`fixflow-submit-workflow.json` and `fixflow-track-workflow.json`).
-2. Add your own Airtable credential and Mistral credential in n8n.
+2. Add your own Airtable, Groq and SMTP (email) credentials in n8n.
 3. In the Airtable create node, Typecast is switched on so single select values are accepted.
 4. In both Webhook nodes, set Allowed Origins (CORS) to your local and deployed site addresses.
 5. Publish both workflows so the production webhook URLs (`/webhook/...`) are active.
@@ -83,7 +84,7 @@ Open http://localhost:5173. The two webhook URLs are in the `CONFIG` block near 
 
 - n8n runs locally through ngrok. A hosted n8n would keep the webhooks online all the time.
 - Status changes are made by hand in Airtable. A third workflow for admins to update a ticket status is a planned next step.
-- Email or SMS updates when the status changes.
+- Email or SMS updates when the status changes (the confirmation email at submission is already live).
 - Contractor assignment for each ticket.
 - A safe fallback if the AI returns invalid JSON (for example, set the category to Other and the priority to MEDIUM).
 - The "Other" issue type is not offered in the form yet.

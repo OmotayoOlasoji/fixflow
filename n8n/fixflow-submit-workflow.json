@@ -426,28 +426,6 @@
     },
     {
       "parameters": {
-        "model": "ministral-14b-latest",
-        "options": {
-          "temperature": 0.2
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
-      "typeVersion": 1,
-      "position": [
-        752,
-        240
-      ],
-      "id": "257b360d-1655-437f-b12d-8ab4c513e363",
-      "name": "Mistral Cloud Chat Model",
-      "credentials": {
-        "mistralCloudApi": {
-          "id": "eUKEu5TtZw5JgR2H",
-          "name": "Mistral Cloud account"
-        }
-      }
-    },
-    {
-      "parameters": {
         "jsCode": "const cleaned = $json.text.replace(/```json|```/g, '').trim();\nconst triage = JSON.parse(cleaned);\n\nreturn [{\n  json: {\n    ...$('Prepare Ticket').first().json,\n    ...triage\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
@@ -888,6 +866,53 @@
       ],
       "id": "9c27d7f2-3399-4164-a759-1c6942422857",
       "name": "Respond to Website"
+    },
+    {
+      "parameters": {
+        "fromEmail": "tayoolasoji59@gmail.com",
+        "toEmail": "={{ $('Prepare Ticket').item.json.email }}",
+        "subject": "=Your FixFlow ticket:  {{ $json.fields['Ticket ID'] }}",
+        "html": "=<p>Hi {{ $('Prepare Ticket').item.json.tenant_name }},</p>\n<p>We received your maintenance request.</p>\n<p><b>Ticket ID:</b> {{ $('Prepare Ticket').item.json.ticket_id }}</p>\n<p><b>Category:</b> {{ $('Apply Priority Rule').item.json.category }}</p>\n<p><b>Priority:</b> {{ $('Apply Priority Rule').item.json.final_priority }}</p>\n<p>You can track it any time at https://fixflow-peach.vercel.app by entering your ticket ID.</p>\n<p>Thank you,<br>FixFlow</p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1808,
+        192
+      ],
+      "id": "62ac28ba-2ce6-4be5-bccc-335387ec4917",
+      "name": "Send an Email",
+      "webhookId": "bc92ff02-4ed5-4645-bf6e-a372f47c3d3c",
+      "credentials": {
+        "smtp": {
+          "id": "e3Mrqhsu8sOdvhrV",
+          "name": "SMTP account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        608,
+        208
+      ],
+      "id": "17f5882e-e8db-418b-914f-0c392efebe6f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "xMlHGyINUsfpGnUa",
+          "name": "Groq account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -920,17 +945,6 @@
           {
             "node": "Basic LLM Chain",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Mistral Cloud Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -987,6 +1001,22 @@
             "node": "Respond to Website",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
           }
         ]
       ]
@@ -997,7 +1027,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "067d7c85-ccbf-4c02-b18e-11699230e61f",
+  "versionId": "847fe18c-e603-40b8-8e70-2f842bfa9aa3",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "e992f5c4b894acf80b4029145662badfa4c69067ae1ec5780c8bd0d0b331f286"

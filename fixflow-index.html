@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixFlow: Report and Track Maintenance Issues</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #1d2733;
+      --muted: #5f6b7a;
+      --brand: #1f6feb;
+      --brand-dark: #1857bb;
+      --border: #d8dee6;
+      --error-bg: #fdecea;
+      --error-text: #b42318;
+      --ok-bg: #e8f5ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header { text-align: center; padding: 32px 16px 8px; }
+    header h1 { margin: 0; font-size: 2rem; }
+    header p { margin: 6px 0 0; color: var(--muted); }
+    main { max-width: 640px; margin: 0 auto; padding: 16px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      flex: 1; padding: 12px; border: 1px solid var(--border); background: #fff;
+      border-radius: 8px; font-size: 1rem; cursor: pointer; color: var(--muted);
+    }
+    .tab.active { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px; margin-bottom: 16px;
+    }
+    .hidden { display: none; }
+    label { display: block; font-weight: 600; margin: 14px 0 4px; font-size: 0.95rem; }
+    .hint { font-weight: 400; color: var(--muted); }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; font-size: 1rem; font-family: inherit;
+      border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--brand); border-color: var(--brand); }
+    .field-error { border-color: var(--error-text) !important; }
+    button.primary {
+      width: 100%; margin-top: 20px; padding: 12px; font-size: 1rem; font-weight: 600;
+      color: #fff; background: var(--brand); border: 0; border-radius: 8px; cursor: pointer;
+    }
+    button.primary:hover { background: var(--brand-dark); }
+    button.primary:disabled { background: #9db9e8; cursor: not-allowed; }
+    .message { margin-top: 16px; padding: 12px 14px; border-radius: 8px; }
+    .message.error { background: var(--error-bg); color: var(--error-text); }
+    .message.info { background: #eef2f7; color: var(--muted); }
+    .result h2 { margin: 0 0 4px; font-size: 1.15rem; }
+    .result .ticket-id { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.1rem; font-weight: 700; }
+    dl { margin: 14px 0 0; }
+    dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-top: 12px; }
+    dd { margin: 2px 0 0; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 600; font-size: 0.85rem; }
+    .p-CRITICAL, .p-HIGH { background: #fde2e0; color: #a1261b; }
+    .p-MEDIUM { background: #fff1d6; color: #8a5a00; }
+    .p-LOW { background: #e0f3e6; color: #1b6a35; }
+    .p-other { background: #e5e9ef; color: var(--text); }
+    footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 8px 16px 32px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FixFlow</h1>
+    <p>Report a maintenance problem and follow it until it is fixed.</p>
+  </header>
+
+  <main>
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tab-report" role="tab" type="button">Report an Issue</button>
+      <button class="tab" id="tab-track" role="tab" type="button">Track a Ticket</button>
+    </div>
+
+    <!-- REPORT AN ISSUE -->
+    <section id="panel-report" class="card">
+      <form id="report-form" novalidate>
+        <label for="tenant_name">Your name</label>
+        <input id="tenant_name" name="tenant_name" type="text" autocomplete="name" />
+
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" />
+
+        <label for="phone">Phone <span class="hint">(optional)</span></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel" />
+
+        <label for="property">Property or apartment</label>
+        <input id="property" name="property" type="text" placeholder="Example: Flat 4B, Maple Court" />
+
+        <label for="issue_type">Issue type</label>
+        <select id="issue_type" name="issue_type">
+          <option value="">Choose one</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Heating">Heating</option>
+          <option value="Security">Security</option>
+          <option value="Appliance">Appliance</option>
+        </select>
+
+        <label for="description">What is wrong?</label>
+        <textarea id="description" name="description" placeholder="Tell us what is happening. Say if water, smoke or sparks are involved."></textarea>
+
+        <label for="started_at">When did it start? <span class="hint">(optional)</span></label>
+        <input id="started_at" name="started_at" type="text" placeholder="Example: Two days ago" />
+
+        <label for="property_usable">Can you still use the property?</label>
+        <select id="property_usable" name="property_usable">
+          <option value="">Choose one</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+
+        <button class="primary" id="report-submit" type="submit">Submit request</button>
+      </form>
+      <div id="report-message" class="message hidden" role="alert"></div>
+    </section>
+
+    <section id="report-result" class="card result hidden" aria-live="polite"></section>
+
+    <!-- TRACK A TICKET -->
+    <section id="panel-track" class="card hidden">
+      <form id="track-form" novalidate>
+        <label for="ticket_id">Ticket ID</label>
+        <input id="ticket_id" name="ticket_id" type="text" placeholder="Example: FIX-20261125-081531" />
+        <button class="primary" id="track-submit" type="submit">Check status</button>
+      </form>
+      <div id="track-message" class="message hidden" role="alert"></div>
+    </section>
+
+    <section id="track-result" class="card result hidden" aria-live="polite"></section>
+  </main>
+
+  <footer>FixFlow demo project</footer>
+
+  <script>
+    // Only URLs go here. No passwords, tokens or API keys.
+    const CONFIG = {
+      REQUEST_WEBHOOK: "https://spouse-barn-parabola.ngrok-free.dev/webhook/fixflow-request",
+      TRACK_WEBHOOK: "https://spouse-barn-parabola.ngrok-free.dev/webhook/fixflow-track"
+    };
+
+    const REQUEST_TIMEOUT_MS = 60000; // the AI step can take 10 seconds or more
+    const $ = (id) => document.getElementById(id);
+
+    // ---------- Tabs ----------
+    function showTab(which) {
+      const report = which === "report";
+      $("tab-report").classList.toggle("active", report);
+      $("tab-track").classList.toggle("active", !report);
+      $("panel-report").classList.toggle("hidden", !report);
+      $("report-result").classList.toggle("hidden", !report || !$("report-result").innerHTML);
+      $("panel-track").classList.toggle("hidden", report);
+      $("track-result").classList.toggle("hidden", report || !$("track-result").innerHTML);
+    }
+    $("tab-report").addEventListener("click", () => showTab("report"));
+    $("tab-track").addEventListener("click", () => showTab("track"));
+
+    // ---------- Helpers ----------
+    function showMessage(el, text, type) {
+      el.textContent = text;
+      el.className = "message " + type;
+    }
+    function hideMessage(el) {
+      el.textContent = "";
+      el.className = "message hidden";
+    }
+    function clearFieldErrors(form) {
+      form.querySelectorAll(".field-error").forEach((f) => f.classList.remove("field-error"));
+    }
+    function markField(id) {
+      $(id).classList.add("field-error");
+    }
+
+    async function postJSON(url, payload) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        let data = null;
+        try {
+          data = await response.json();
+        } catch (e) {
+          console.error("Response was not valid JSON", e);
+        }
+        if (!response.ok || data === null) {
+          console.error("Request failed", response.status, data);
+          throw new Error("bad_response");
+        }
+        return data;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function badge(text, kind) {
+      const span = document.createElement("span");
+      span.className = "badge " + (kind || "p-other");
+      span.textContent = text;
+      return span;
+    }
+
+    function addRow(dl, label, valueNode) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      if (typeof valueNode === "string") dd.textContent = valueNode;
+      else dd.appendChild(valueNode);
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    }
+
+    function priorityBadge(priority) {
+      const p = String(priority || "").toUpperCase();
+      return badge(p || "Not set", ["CRITICAL", "HIGH", "MEDIUM", "LOW"].includes(p) ? "p-" + p : "p-other");
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const d = new Date(value);
+      return isNaN(d) ? String(value) : d.toLocaleString();
+    }
+
+    // ---------- Report an Issue ----------
+    $("report-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.target;
+      const msg = $("report-message");
+      const resultBox = $("report-result");
+      hideMessage(msg);
+      clearFieldErrors(form);
+      resultBox.classList.add("hidden");
+      resultBox.innerHTML = "";
+
+      const payload = {
+        tenant_name: $("tenant_name").value.trim(),
+        email: $("email").value.trim(),
+        phone: $("phone").value.trim(),
+        property: $("property").value.trim(),
+        issue_type: $("issue_type").value,
+        description: $("description").value.trim(),
+        started_at: $("started_at").value.trim(),
+        property_usable: $("property_usable").value
+      };
+
+      // Validation: say exactly what is missing
+      const required = [
+        ["tenant_name", "your name"],
+        ["email", "your email"],
+        ["property", "the property or apartment"],
+        ["issue_type", "the issue type"],
+        ["description", "a description of the problem"],
+        ["property_usable", "whether you can still use the property"]
+      ];
+      const missing = required.filter(([key]) => !payload[key]);
+      if (missing.length) {
+        missing.forEach(([key]) => markField(key));
+        showMessage(msg, "Please add " + missing.map((m) => m[1]).join(", ") + ".", "error");
+        return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(payload.email)) {
+        markField("email");
+        showMessage(msg, "Please enter a valid email address.", "error");
+        return;
+      }
+
+      const button = $("report-submit");
+      button.disabled = true;
+      button.textContent = "Processing...";
+      showMessage(msg, "Sending your request. This can take about 15 seconds.", "info");
+
+      try {
+        const result = await postJSON(CONFIG.REQUEST_WEBHOOK, payload);
+        if (result.success === false) {
+          showMessage(msg, result.message || "We could not log your request. Please try again.", "error");
+          return;
+        }
+        hideMessage(msg);
+        renderReportResult(result);
+        form.reset();
+      } catch (err) {
+        console.error(err);
+        showMessage(msg, "Something went wrong and we could not log your request. Please try again in a moment.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Submit request";
+      }
+    });
+
+    function renderReportResult(result) {
+      const box = $("report-result");
+      box.innerHTML = "";
+      const h2 = document.createElement("h2");
+      h2.textContent = "Your request has been logged";
+      const id = document.createElement("div");
+      id.className = "ticket-id";
+      id.textContent = result.ticket_id || "";
+      const note = document.createElement("p");
+      note.textContent = "Keep this ticket ID. You can use it on the Track a Ticket tab.";
+      const dl = document.createElement("dl");
+      addRow(dl, "Category", result.category || "Not set");
+      addRow(dl, "Priority", priorityBadge(result.priority));
+      if (result.recommended_team) addRow(dl, "Team assigned", result.recommended_team);
+      addRow(dl, "Status", result.status || "RECEIVED");
+      if (result.summary) addRow(dl, "Summary", result.summary);
+      box.append(h2, id, note, dl);
+      box.classList.remove("hidden");
+    }
+
+    // ---------- Track a Ticket ----------
+    $("track-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const msg = $("track-message");
+      const resultBox = $("track-result");
+      hideMessage(msg);
+      clearFieldErrors(event.target);
+      resultBox.classList.add("hidden");
+      resultBox.innerHTML = "";
+
+      const ticketId = $("ticket_id").value.trim().toUpperCase();
+      if (!ticketId) {
+        markField("ticket_id");
+        showMessage(msg, "Please enter your ticket ID.", "error");
+        return;
+      }
+
+      const button = $("track-submit");
+      button.disabled = true;
+      button.textContent = "Processing...";
+
+      try {
+        const result = await postJSON(CONFIG.TRACK_WEBHOOK, { ticket_id: ticketId });
+        if (!result.success || !result.ticket) {
+          showMessage(msg, result.message || "We could not find that ticket. Please check the ID and try again.", "error");
+          return;
+        }
+        renderTrackResult(result.ticket);
+      } catch (err) {
+        console.error(err);
+        showMessage(msg, "Something went wrong while checking your ticket. Please try again in a moment.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Check status";
+      }
+    });
+
+    function renderTrackResult(ticket) {
+      const box = $("track-result");
+      box.innerHTML = "";
+      const h2 = document.createElement("h2");
+      h2.textContent = "Ticket found";
+      const id = document.createElement("div");
+      id.className = "ticket-id";
+      id.textContent = ticket.ticket_id || "";
+      const dl = document.createElement("dl");
+      addRow(dl, "Status", badge(ticket.status || "Not set"));
+      addRow(dl, "Category", ticket.category || "Not set");
+      addRow(dl, "Priority", priorityBadge(ticket.priority));
+      if (ticket.summary) addRow(dl, "Summary", ticket.summary);
+      if (ticket.updated_at) addRow(dl, "Last updated", formatDate(ticket.updated_at));
+      box.append(h2, id, dl);
+      box.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

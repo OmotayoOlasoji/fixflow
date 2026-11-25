@@ -1,0 +1,1008 @@
+{
+  "name": "FixFlow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fixflow-request",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173,https://fixflow-peach.vercel.app"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "7bbbcd45-ca51-4368-b02e-f7d2b2af3f89",
+      "name": "Maintenance Request",
+      "webhookId": "336cdc84-038f-484e-8193-99751e5875eb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39b7fe0c-1cb1-4e71-ad34-b4756fee9199",
+              "name": "ticket_id",
+              "value": "={{ 'FIX-' + $now.toFormat('yyyyMMdd-HHmmss') }}",
+              "type": "string"
+            },
+            {
+              "id": "5e13c9d5-0902-4e93-9b86-445bf3c56d3a",
+              "name": "tenant_name",
+              "value": "={{$json.body.tenant_name}}",
+              "type": "string"
+            },
+            {
+              "id": "95265c72-a898-4c32-b7f1-6466dce32343",
+              "name": "email",
+              "value": "={{$json.body.email}}",
+              "type": "string"
+            },
+            {
+              "id": "4c0bb096-b977-4d01-b49a-9b4b71a29ddb",
+              "name": "phone",
+              "value": "={{$json.body.phone}}",
+              "type": "string"
+            },
+            {
+              "id": "bd85b8e6-933c-4728-9db9-6f6edb0dfa2e",
+              "name": "property",
+              "value": "={{$json.body.property}}",
+              "type": "string"
+            },
+            {
+              "id": "ba879ebb-1899-41b4-b218-1029c3090a2e",
+              "name": "issue_type",
+              "value": "={{$json.body.issue_type}}",
+              "type": "string"
+            },
+            {
+              "id": "a560da58-23dc-4cfa-b825-c88be6bbeac2",
+              "name": "description",
+              "value": "={{$json.body.description}}",
+              "type": "string"
+            },
+            {
+              "id": "6bfb3730-e930-44a6-8202-51731f94f76a",
+              "name": "started_at",
+              "value": "={{$json.body.started_at}}",
+              "type": "string"
+            },
+            {
+              "id": "73c193fa-66c5-4cd9-a3e3-ba4848c5d9e6",
+              "name": "property_usable",
+              "value": "={{$json.body.property_usable}}",
+              "type": "string"
+            },
+            {
+              "id": "d7d9d207-a067-43cf-8f53-d54a90c5915b",
+              "name": "status",
+              "value": "RECEIVED",
+              "type": "string"
+            },
+            {
+              "id": "fc14ede3-875b-4ff8-9e01-66aeb9a481d4",
+              "name": "created_at",
+              "value": "={{$now.toISO()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a6a1d4f6-8f20-4443-990c-c5c84722f737",
+      "name": "Prepare Ticket"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appJpa6d01XxAHot0",
+          "mode": "list",
+          "cachedResultName": "FixFlow",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLuHlAHlr8mxqu3",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0/tblLuHlAHlr8mxqu3"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $('Prepare Ticket').item.json.ticket_id }}",
+            "Tenant Name": "={{ $('Prepare Ticket').item.json.tenant_name }}",
+            "Email": "={{ $('Prepare Ticket').item.json.email }}",
+            "Phone": "={{ $('Prepare Ticket').item.json.phone }}",
+            "Property": "={{ $('Prepare Ticket').item.json.property }}",
+            "Description": "={{ $('Prepare Ticket').item.json.description }}",
+            "Started At": "={{ $('Prepare Ticket').item.json.started_at }}",
+            "Property Usable": "={{ $('Prepare Ticket').item.json.property_usable }}",
+            "Status": "={{ $('Prepare Ticket').item.json.status }}",
+            "Created At": "={{ $('Prepare Ticket').item.json.created_at }}",
+            "Updated At": "={{ $now.toISO() }}",
+            "Issue Type": "={{ $('Prepare Ticket').item.json.issue_type }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tenant Name",
+              "displayName": "Tenant Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property",
+              "displayName": "Property",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Plumbing",
+                  "value": "Plumbing"
+                },
+                {
+                  "name": "Electrical",
+                  "value": "Electrical"
+                },
+                {
+                  "name": "Heating",
+                  "value": "Heating"
+                },
+                {
+                  "name": " Security",
+                  "value": " Security"
+                },
+                {
+                  "name": "Appliance",
+                  "value": "Appliance"
+                },
+                {
+                  "name": " Other",
+                  "value": " Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property Usable",
+              "displayName": "Property Usable",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Yes",
+                  "value": "Yes"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "CRITICAL",
+                  "value": "CRITICAL"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Recommended Team",
+              "displayName": "Recommended Team",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RECEIVED",
+                  "value": "RECEIVED"
+                },
+                {
+                  "name": "REVIEWED",
+                  "value": "REVIEWED"
+                },
+                {
+                  "name": "IN PROGRESS",
+                  "value": "IN PROGRESS"
+                },
+                {
+                  "name": "COMPLETED",
+                  "value": "COMPLETED"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Updated At",
+              "displayName": "Updated At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "93bffac3-257e-4294-b579-fcb751bd4886",
+      "name": "Create Ticket",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "iQ5jXZt4snYl8Svh",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a maintenance triage assistant.\n\nUse ONLY the tenant's report below. Do not diagnose beyond the information given.\nYour job is to categorise, summarise, and recommend the most suitable maintenance team.\n\nISSUE TYPE: {{ $json.fields['Issue Type'] }}\nDESCRIPTION: {{ $json.fields.Description }}\nPROPERTY USABLE: {{ $json.fields['Property Usable'] }}\nSTARTED: {{ $json.fields['Started At'] }}\n\nReturn RAW JSON only:\n{\n  \"category\": \"Plumbing|Electrical|Heating|Security|Appliance|Other\",\n  \"suggested_priority\": \"LOW|MEDIUM|HIGH|CRITICAL\",\n  \"recommended_team\": \"\",\n  \"issue_summary\": \"\",\n  \"safety_note\": \"\"\n}\n\nPriority guidance:\n- CRITICAL: immediate threat to life/safety, major uncontrolled flooding, exposed live electrical danger, serious security risk.\n- HIGH: rapidly worsening issue or serious loss of essential function.\n- MEDIUM: important but stable issue.\n- LOW: minor/cosmetic/non-urgent issue.\n\nIf facts are insufficient, do not invent details.\nOnly state facts given in the input. Property usable is: {{ $json.fields['Property Usable'] }}. Do not guess or contradict it.\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        672,
+        0
+      ],
+      "id": "8e311005-3d14-4400-83f7-c9c7fdcc7cba",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "ministral-14b-latest",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatMistralCloud",
+      "typeVersion": 1,
+      "position": [
+        752,
+        240
+      ],
+      "id": "257b360d-1655-437f-b12d-8ab4c513e363",
+      "name": "Mistral Cloud Chat Model",
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "eUKEu5TtZw5JgR2H",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const cleaned = $json.text.replace(/```json|```/g, '').trim();\nconst triage = JSON.parse(cleaned);\n\nreturn [{\n  json: {\n    ...$('Prepare Ticket').first().json,\n    ...triage\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "8282b6a1-91e7-4237-a5d8-820449fa86c8",
+      "name": "Parse Triage"
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $json.suggested_priority;\nlet finalPriority = p;\n\nif ($json.property_usable === \"No\" && p === \"LOW\") {\n  finalPriority = \"MEDIUM\";\n}\n\nreturn [{ json: { ...$json, final_priority: finalPriority } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "3e26e29c-b21e-452c-9ce2-00faa81dd840",
+      "name": "Apply Priority Rule"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appJpa6d01XxAHot0",
+          "mode": "list",
+          "cachedResultName": "FixFlow",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLuHlAHlr8mxqu3",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0/tblLuHlAHlr8mxqu3"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json.ticket_id }}",
+            "Category": "={{ $json.category }}",
+            "Recommended Team": "={{ $json.recommended_team }}",
+            "Priority": "={{ $json.final_priority }}",
+            "AI Summary": "={{ $json.issue_summary }}",
+            "Updated At": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "Ticket ID"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tenant Name",
+              "displayName": "Tenant Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property",
+              "displayName": "Property",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Issue Type",
+              "displayName": "Issue Type",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Plumbing",
+                  "value": "Plumbing"
+                },
+                {
+                  "name": "Electrical",
+                  "value": "Electrical"
+                },
+                {
+                  "name": "Heating",
+                  "value": "Heating"
+                },
+                {
+                  "name": " Security",
+                  "value": " Security"
+                },
+                {
+                  "name": "Appliance",
+                  "value": "Appliance"
+                },
+                {
+                  "name": " Other",
+                  "value": " Other"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Started At",
+              "displayName": "Started At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Property Usable",
+              "displayName": "Property Usable",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Yes",
+                  "value": "Yes"
+                },
+                {
+                  "name": "No",
+                  "value": "No"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "LOW",
+                  "value": "LOW"
+                },
+                {
+                  "name": "MEDIUM",
+                  "value": "MEDIUM"
+                },
+                {
+                  "name": "HIGH",
+                  "value": "HIGH"
+                },
+                {
+                  "name": "CRITICAL",
+                  "value": "CRITICAL"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Recommended Team",
+              "displayName": "Recommended Team",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "AI Summary",
+              "displayName": "AI Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "RECEIVED",
+                  "value": "RECEIVED"
+                },
+                {
+                  "name": "REVIEWED",
+                  "value": "REVIEWED"
+                },
+                {
+                  "name": "IN PROGRESS",
+                  "value": "IN PROGRESS"
+                },
+                {
+                  "name": "COMPLETED",
+                  "value": "COMPLETED"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Updated At",
+              "displayName": "Updated At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1472,
+        0
+      ],
+      "id": "ab15e162-649c-4089-8cd2-746ac6eebcd3",
+      "name": "Update Ticket with Triage",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "iQ5jXZt4snYl8Svh",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appJpa6d01XxAHot0",
+          "mode": "list",
+          "cachedResultName": "FixFlow",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXXN4KpiKyNIblt",
+          "mode": "list",
+          "cachedResultName": "Activity Logs",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0/tblXXN4KpiKyNIblt"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Log ID": "={{ 'LOG-' + $now.toFormat('yyyyMMdd-HHmmss') }}",
+            "Ticket ID": "={{ $json.fields['Ticket ID'] }}",
+            "Created At": "={{ $now.toISO() }}",
+            "Action": "Ticket created and triaged"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Log ID",
+              "displayName": "Log ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Action",
+              "displayName": "Action",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created At",
+              "displayName": "Created At",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        0
+      ],
+      "id": "97ab7478-1b72-4053-add4-34d3218e09f4",
+      "name": "Create Activity Log",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "iQ5jXZt4snYl8Svh",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n{\n  \"success\": true,\n  \"ticket_id\": $('Prepare Ticket').first().json.ticket_id,\n  \"category\": $('Apply Priority Rule').first().json.category,\n  \"priority\": $('Apply Priority Rule').first().json.final_priority,\n  \"recommended_team\": $('Apply Priority Rule').first().json.recommended_team,\n  \"summary\": $('Apply Priority Rule').first().json.issue_summary,\n  \"status\": \"RECEIVED\",\n  \"message\": \"Your maintenance request has been logged.\"\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1920,
+        0
+      ],
+      "id": "9c27d7f2-3399-4164-a759-1c6942422857",
+      "name": "Respond to Website"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Maintenance Request": {
+      "main": [
+        [
+          {
+            "node": "Prepare Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Ticket": {
+      "main": [
+        [
+          {
+            "node": "Create Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ticket": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Parse Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Triage": {
+      "main": [
+        [
+          {
+            "node": "Apply Priority Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Priority Rule": {
+      "main": [
+        [
+          {
+            "node": "Update Ticket with Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ticket with Triage": {
+      "main": [
+        [
+          {
+            "node": "Create Activity Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Activity Log": {
+      "main": [
+        [
+          {
+            "node": "Respond to Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "067d7c85-ccbf-4c02-b18e-11699230e61f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e992f5c4b894acf80b4029145662badfa4c69067ae1ec5780c8bd0d0b331f286"
+  },
+  "nodeGroups": [],
+  "id": "mIzailupCSzuBNoW",
+  "tags": []
+}

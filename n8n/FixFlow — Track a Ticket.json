@@ -1,0 +1,180 @@
+{
+  "name": "FixFlow — Track a Ticket",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fixflow-track",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:5173,https://fixflow-peach.vercel.app"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "8a851376-5101-44c2-8e96-8122340f58a2",
+      "name": "Track Request",
+      "webhookId": "45761d05-5076-4bb9-8a30-0eca825611f4"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appJpa6d01XxAHot0",
+          "mode": "list",
+          "cachedResultName": "FixFlow",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLuHlAHlr8mxqu3",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://airtable.com/appJpa6d01XxAHot0/tblLuHlAHlr8mxqu3"
+        },
+        "filterByFormula": "={Ticket ID} = '{{ $json.body.ticket_id }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "dd53688a-2672-434f-9861-b97e0979d71a",
+      "name": "Find Ticket",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "iQ5jXZt4snYl8Svh",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "642b3530-f101-4ddc-9a98-e466743ae413",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "a102cdd7-39dd-44ef-a700-b4fb4a6307a9",
+      "name": "Ticket Found?"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": false,\n  \"message\": \"We couldn't find that ticket. Please check the ID and try again.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "cdda0eae-cb75-4b4a-a84e-9e5a68cdce69",
+      "name": "Respond with Ticket - False"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"ticket\": {\n    \"ticket_id\": \"{{ $json.fields['Ticket ID'] }}\",\n    \"category\": \"{{ $json.fields['Category'] }}\",\n    \"priority\": \"{{ $json.fields['Priority'] }}\",\n    \"status\": \"{{ $json.fields['Status'] }}\",\n    \"summary\": \"{{ $json.fields['AI Summary'] }}\",\n    \"updated_at\": \"{{ $json.fields['Updated At'] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        672,
+        -160
+      ],
+      "id": "913bb923-281e-4922-8e97-0ecbbbb9ada7",
+      "name": "Respond with Ticket - True"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Track Request": {
+      "main": [
+        [
+          {
+            "node": "Find Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Ticket": {
+      "main": [
+        [
+          {
+            "node": "Ticket Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Found?": {
+      "main": [
+        [
+          {
+            "node": "Respond with Ticket - True",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond with Ticket - False",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9f6f98a7-8f74-4d0e-8913-0ecbc8cf7e02",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e992f5c4b894acf80b4029145662badfa4c69067ae1ec5780c8bd0d0b331f286"
+  },
+  "nodeGroups": [],
+  "id": "woKCYVFFHA0lByNX",
+  "tags": []
+}

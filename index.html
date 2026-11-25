@@ -60,6 +60,8 @@
     .message.info { background: #eef2f7; color: var(--muted); }
     .result h2 { margin: 0 0 4px; font-size: 1.15rem; }
     .result .ticket-id { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 1.1rem; font-weight: 700; }
+    .copy-btn { margin-top: 8px; padding: 6px 14px; border: 1px solid var(--brand); background: #fff; color: var(--brand); border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+    .copy-btn:hover { background: #eef3ff; }
     dl { margin: 14px 0 0; }
     dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-top: 12px; }
     dd { margin: 2px 0 0; }
@@ -318,7 +320,26 @@
       if (result.recommended_team) addRow(dl, "Team assigned", result.recommended_team);
       addRow(dl, "Status", result.status || "RECEIVED");
       if (result.summary) addRow(dl, "Summary", result.summary);
-      box.append(h2, id, note, dl);
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "copy-btn";
+      copyBtn.textContent = "Copy ticket ID";
+      copyBtn.addEventListener("click", async () => {
+        const text = id.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (e) {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+        }
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => { copyBtn.textContent = "Copy ticket ID"; }, 2000);
+      });
+      box.append(h2, id, copyBtn, note, dl);
       box.classList.remove("hidden");
     }
 
